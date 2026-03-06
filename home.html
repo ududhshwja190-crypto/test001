@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Главная</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+.hero{background:linear-gradient(135deg,#5b7fff,#3a5ce0);margin:12px;border-radius:22px;padding:22px;color:#fff;position:relative;overflow:hidden}
+.hero::after{content:'💬';position:absolute;right:-8px;bottom:-12px;font-size:90px;opacity:0.12;pointer-events:none}
+.hero-hello{font-size:13px;opacity:.75;margin-bottom:3px}
+.hero-name{font-size:24px;font-weight:800}
+.stats{display:flex;gap:10px;margin-top:16px}
+.stat{background:rgba(255,255,255,0.15);border-radius:14px;padding:10px 14px;flex:1;text-align:center}
+.stat-n{font-size:22px;font-weight:800}
+.stat-l{font-size:11px;opacity:.8;margin-top:1px}
+.unread-badge{background:#ff4d6d;color:#fff;font-size:11px;font-weight:800;min-width:20px;height:20px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;padding:0 5px;margin-left:6px}
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="topbar-title">Главная</div></div>
+
+<div class="page">
+  <div class="hero">
+    <div class="hero-hello">Добро пожаловать,</div>
+    <div class="hero-name" id="hero-name">...</div>
+    <div class="stats">
+      <div class="stat"><div class="stat-n" id="stat-chats">0</div><div class="stat-l">Чатов</div></div>
+      <div class="stat"><div class="stat-n" id="stat-friends">0</div><div class="stat-l">Друзей</div></div>
+    </div>
+  </div>
+  <div class="section-title">Последние чаты</div>
+  <div id="recent-chats"></div>
+</div>
+
+<nav class="navbar">
+  <a class="nav-item active" href="/home"><div class="nav-icon">🏠</div><div class="nav-label">Главная</div></a>
+  <a class="nav-item" href="/chats"><div class="nav-icon">💬</div><div class="nav-label">Чаты</div><div class="nav-badge" id="nb-chats" style="display:none">0</div></a>
+  <a class="nav-item" href="/people"><div class="nav-icon">👥</div><div class="nav-label">Люди</div><div class="nav-badge" id="nb">0</div></a>
+  <a class="nav-item" href="/profile"><div class="nav-icon">👤</div><div class="nav-label">Профиль</div></a>
+</nav>
+
+<script>
+function esc(s){ return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):''; }
+let lastJson = '';
+
+document.getElementById('recent-chats').addEventListener('click', e => {
+  const item = e.target.closest('.chat-item');
+  if (item) window.location.href = '/chat/' + item.dataset.id;
+});
+
+async function init() {
+  const me = await fetch('/api/me').then(r=>r.json());
+  if (!me.logged) { window.location.href='/login'; return; }
+  document.getElementById('hero-name').textContent = me.username;
+  loadData();
+  setInterval(loadData, 5000);
+}
+
+async function loadData() {
+  const [chats, friends] = await Promise.all([
+    fetch('/api/chats').then(r=>r.json()),
+    fetch('/api/friends').then(r=>r.json())
+  ]);
+
+  document.getElementById('stat-chats').textContent = chats.length;
+  document.getElementById('stat-friends').textContent = friends.friends.length;
+
+  // Непрочитанные
+  const totalUnread = chats.reduce((s, c) => s + (c.unread || 0), 0);
+  const nbChats = document.getElementById('nb-chats');
+  if (totalUnread > 0) { nbChats.textContent = totalUnread > 99 ? '99+' : totalUnread; nbChats.style.display='flex'; }
+  else nbChats.style.display = 'none';
+
+  const nb = document.getElementById('nb');
+  if (friends.pending.length) { nb.textContent = friends.pending.length; nb.style.display='flex'; }
+  else nb.style.display='none';
+
+  const json = JSON.stringify(chats.slice(0,5));
+  if (json === lastJson) return;
+  lastJson = json;
+  renderChats(chats.slice(0,5));
+}
+
+function renderChats(chats) {
+  const el = document.getElementById('recent-chats');
+  if (!chats.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-ico">💬</div><p>Нет чатов.<br>Найди друзей и напиши им!</p></div>';
+    return;
+  }
+  el.innerHTML = chats.map(c => {
+    const color = c.other_color || '#5b7fff';
+    const initials = c.name ? c.name[0].toUpperCase() : '?';
+    const lastMsg = c.last_msg ? `${c.last_user ? c.last_user+': ' : ''}${esc(c.last_msg)}` : 'Нет сообщений';
+    const avInner = c.other_img ? `<img src="${c.other_img}">` : initials;
+    return `<div class="chat-item" data-id="${c.id}">
+      <div class="av" style="background:${color};width:50px;height:50px;font-size:19px">${avInner}</div>
+      <div class="chat-info">
+        <div class="chat-name">${esc(c.name)}${c.unread > 0 ? `<span class="unread-badge">${c.unread}</span>` : ''}</div>
+        <div class="chat-last">${lastMsg}</div>
+      </div>
+      <div class="chat-time">${c.last_time||''}</div>
+    </div>`;
+  }).join('');
+}
+
+init();
+</script>
+</body>
+</html>
