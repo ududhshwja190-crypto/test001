@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Панель поддержки</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+.tabs{display:flex;background:#fff;border-bottom:2px solid #f0f2f8;overflow-x:auto;flex-shrink:0}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:13px 16px;text-align:center;font-size:13px;font-weight:800;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap}
+.tab.active{color:var(--a);border-bottom-color:var(--a)}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:80px}
+
+/* stats */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:12px}
+.stat-card{background:#fff;border-radius:14px;padding:12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+.stat-n{font-size:22px;font-weight:800;color:var(--a)}
+.stat-l{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* tickets */
+.ticket{background:#fff;margin:8px 12px;border-radius:16px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+.ticket-from{font-size:12px;color:var(--muted);margin-bottom:4px}
+.ticket-head{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px}
+.ticket-subject{font-size:15px;font-weight:800;flex:1}
+.sbadge{padding:3px 9px;border-radius:10px;font-size:11px;font-weight:700;flex-shrink:0}
+.s-open{background:#fff3e0;color:#ff9f5b}
+.s-answered{background:#e8f5e9;color:#4cde90}
+.s-closed{background:#f0f2f8;color:var(--muted)}
+.ticket-msg{font-size:14px;color:#333;margin-bottom:6px;line-height:1.45}
+.ticket-date{font-size:11px;color:var(--muted);margin-bottom:10px}
+.replies{border-top:1px solid #f0f2f8;padding-top:10px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px}
+.reply{background:#f0f5ff;border-radius:10px;padding:10px 12px}
+.reply-who{font-size:11px;font-weight:800;color:var(--a);margin-bottom:2px}
+.reply-area{display:flex;gap:8px;align-items:flex-end}
+.reply-inp{flex:1;padding:10px 14px;border-radius:14px;border:1.5px solid #dde1f0;background:#f6f7fc;font-size:14px;font-family:inherit;outline:none;resize:none;height:44px}
+.reply-btn{padding:10px 14px;border-radius:14px;border:none;background:var(--a);color:#fff;font-weight:800;font-size:13px;font-family:inherit;cursor:pointer}
+.close-btn{padding:6px 12px;border-radius:10px;border:none;background:#f0f2f8;color:var(--muted);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:6px}
+
+/* users */
+.user-card{background:#fff;margin:8px 12px;border-radius:16px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+.user-top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.badge-role{padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700}
+.br-user{background:#f0f2f8;color:var(--muted)}
+.br-support{background:#e8f5e9;color:#4cde90}
+.br-admin{background:#ffe0e6;color:#ff4d6d}
+.br-banned{background:#ffe0e6;color:#ff4d6d}
+.role-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.rbtn{padding:6px 12px;border-radius:10px;border:2px solid #e0e8ff;background:#fff;color:#5b7fff;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer}
+.rbtn.active{background:#5b7fff;color:#fff;border-color:#5b7fff}
+.action-btns{display:flex;gap:6px;flex-wrap:wrap}
+.abtn{padding:7px 13px;border-radius:12px;border:none;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer}
+.abtn-ban{background:#fff3e0;color:#ff9f5b}
+.abtn-unban{background:#e8f5e9;color:#4cde90}
+.abtn-del{background:#ffe0e6;color:#ff4d6d}
+.abtn-pw{background:#f0f2f8;color:#333}
+.pw-row{display:flex;gap:6px;margin-top:8px}
+.pw-inp{flex:1;height:38px;padding:0 12px;border-radius:12px;border:1.5px solid #dde1f0;background:#f6f7fc;font-size:14px;font-family:inherit;outline:none}
+.pw-btn{padding:0 14px;border-radius:12px;border:none;background:#ff9f5b;color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;height:38px}
+
+/* chats */
+.chat-card{background:#fff;margin:8px 12px;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+.chat-card-name{font-size:15px;font-weight:800;margin-bottom:4px}
+.chat-card-meta{font-size:12px;color:var(--muted);display:flex;gap:10px}
+
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#4cde90;color:#fff;padding:10px 20px;border-radius:20px;font-weight:700;font-size:14px;display:none;z-index:999;white-space:nowrap}
+.search-wrap{padding:10px 12px;background:#fff;border-bottom:1px solid #f0f2f8}
+.search-inp{width:100%;height:40px;padding:0 14px;border-radius:20px;border:1.5px solid #dde1f0;background:#f6f7fc;font-size:15px;font-family:inherit;outline:none}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="back-btn" onclick="history.back()">←</button>
+  <div class="topbar-title">🛡️ Панель поддержки</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" id="tab-stats" onclick="switchTab('stats')">📊 Стата</div>
+  <div class="tab" id="tab-open" onclick="switchTab('open')">📬 Открытые</div>
+  <div class="tab" id="tab-answered" onclick="switchTab('answered')">✅ Отвечено</div>
+  <div class="tab" id="tab-users" onclick="switchTab('users')">👥 Юзеры</div>
+  <div class="tab" id="tab-chats" onclick="switchTab('chats')">💬 Чаты</div>
+</div>
+
+<div class="scroll" id="main-content"></div>
+<div class="toast" id="toast"></div>
+
+<nav class="navbar">
+  <a class="nav-item" href="/home"><div class="nav-icon">🏠</div><div class="nav-label">Главная</div></a>
+  <a class="nav-item" href="/chats"><div class="nav-icon">💬</div><div class="nav-label">Чаты</div></a>
+  <a class="nav-item" href="/people"><div class="nav-icon">👥</div><div class="nav-label">Люди</div></a>
+  <a class="nav-item" href="/profile"><div class="nav-icon">👤</div><div class="nav-label">Профиль</div></a>
+</nav>
+
+<script>
+function esc(s){ return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):''; }
+let currentTab = 'stats';
+let searchTimer = null;
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display='none', 2500);
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  const fns = {stats:loadStats, open:()=>loadTickets('open'), answered:()=>loadTickets('answered'), users:loadUsers, chats:loadAllChats};
+  fns[tab]();
+}
+
+// ── STATS ──
+async function loadStats() {
+  const s = await fetch('/api/admin/stats').then(r=>r.json());
+  document.getElementById('main-content').innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-n">${s.users}</div><div class="stat-l">Пользователей</div></div>
+      <div class="stat-card"><div class="stat-n" style="color:#4cde90">${s.online}</div><div class="stat-l">Онлайн</div></div>
+      <div class="stat-card"><div class="stat-n" style="color:#ff4d6d">${s.banned}</div><div class="stat-l">Забанено</div></div>
+      <div class="stat-card"><div class="stat-n">${s.messages}</div><div class="stat-l">Сообщений</div></div>
+      <div class="stat-card"><div class="stat-n">${s.chats}</div><div class="stat-l">Чатов</div></div>
+      <div class="stat-card"><div class="stat-n" style="color:#ff9f5b">${s.open_tickets}</div><div class="stat-l">Тикетов</div></div>
+    </div>`;
+}
+
+// ── TICKETS ──
+async function loadTickets(status) {
+  const el = document.getElementById('main-content');
+  el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Загрузка...</div>';
+  const tickets = await fetch('/api/admin/tickets?status='+status).then(r=>r.json());
+  if (!tickets.length) { el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">🎉 Нет обращений</div>'; return; }
+  const sNames = {open:'Открыто',answered:'Отвечено',closed:'Закрыто'};
+  el.innerHTML = tickets.map(t => `
+    <div class="ticket">
+      <div class="ticket-from">От: <b>${esc(t.username)}</b></div>
+      <div class="ticket-head">
+        <div class="ticket-subject">${esc(t.subject)}</div>
+        <div class="sbadge s-${t.status}">${sNames[t.status]}</div>
+      </div>
+      <div class="ticket-msg">${esc(t.message)}</div>
+      <div class="ticket-date">📅 ${t.created_at}</div>
+      ${t.replies.length ? `<div class="replies">${t.replies.map(r=>`
+        <div class="reply"><div class="reply-who">🛡️ ${esc(r.admin_name)}</div><div style="font-size:14px">${esc(r.message)}</div><div style="font-size:10px;color:var(--muted)">${r.created_at}</div></div>`).join('')}</div>` : ''}
+      ${t.status!=='closed' ? `
+        <div class="reply-area">
+          <textarea class="reply-inp" id="rep-${t.id}" placeholder="Ответ пользователю..."></textarea>
+          <button class="reply-btn" onclick="sendReply(${t.id})">→</button>
+        </div>
+        <button class="close-btn" onclick="closeTick(${t.id})">Закрыть обращение</button>` : ''}
+    </div>`).join('');
+}
+
+async function sendReply(id) {
+  const msg = document.getElementById('rep-'+id).value.trim();
+  if (!msg) return;
+  const r = await api('/api/admin/reply', {ticket_id:id, message:msg});
+  if (r.ok) { toast('✅ Ответ отправлен'); loadTickets(currentTab); }
+}
+async function closeTick(id) {
+  await api('/api/admin/close_ticket', {ticket_id:id});
+  toast('🔒 Закрыто'); loadTickets(currentTab);
+}
+
+// ── USERS ──
+function loadUsers(q) {
+  const el = document.getElementById('main-content');
+  el.innerHTML = `
+    <div class="search-wrap"><input class="search-inp" id="usearch" placeholder="🔍 Поиск..." value="${q||''}"></div>
+    <div id="ulist"><div style="text-align:center;padding:30px;color:var(--muted)">Загрузка...</div></div>`;
+  document.getElementById('usearch').addEventListener('input', function() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => fetchUsers(this.value.trim()), 300);
+  });
+  fetchUsers(q||'');
+}
+
+async function fetchUsers(q) {
+  const users = await fetch('/api/admin/users?q='+encodeURIComponent(q)).then(r=>r.json());
+  const el = document.getElementById('ulist');
+  if (!users.length) { el.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Не найдено</div>'; return; }
+  const rNames = {user:'Пользователь',support:'Поддержка',admin:'Админ'};
+  el.innerHTML = users.map(u => {
+    const avInner = u.avatar_img ? `<img src="${u.avatar_img}">` : u.username[0].toUpperCase();
+    return `<div class="user-card" id="uc-${u.id}">
+      <div class="user-top">
+        <div class="av" style="background:${u.avatar_color};width:46px;height:46px;font-size:17px">${avInner}</div>
+        <div style="flex:1">
+          <div style="font-weight:800;font-size:15px">${esc(u.username)} ${u.banned?'🔴':''}</div>
+          <div style="display:flex;gap:6px;margin-top:3px">
+            <span class="badge-role br-${u.role||'user'}">${rNames[u.role]||'Пользователь'}</span>
+            ${u.banned ? '<span class="badge-role br-banned">Заблокирован</span>' : ''}
+          </div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Роль:</div>
+      <div class="role-btns">
+        ${['user','support','admin'].map(r=>`<button class="rbtn${u.role===r?' active':''}" data-uid="${u.id}" data-role="${r}">${rNames[r]}</button>`).join('')}
+      </div>
+      <div class="action-btns">
+        ${u.banned
+          ? `<button class="abtn abtn-unban" data-uid="${u.id}" data-action="unban">✅ Разбанить</button>`
+          : `<button class="abtn abtn-ban" data-uid="${u.id}" data-action="ban">🔨 Забанить</button>`}
+        <button class="abtn abtn-del" data-uid="${u.id}" data-action="del">🗑 Удалить</button>
+      </div>
+      <div class="pw-row">
+        <input class="pw-inp" type="text" id="pw-${u.id}" placeholder="Новый пароль">
+        <button class="pw-btn" data-uid="${u.id}" data-action="pw">Сбросить</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Role buttons
+  el.querySelectorAll('.rbtn[data-role]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const r = await api('/api/admin/set_role', {user_id:parseInt(btn.dataset.uid), role:btn.dataset.role});
+      if (r.ok) {
+        toast('✅ Роль изменена');
+        btn.closest('.role-btns').querySelectorAll('.rbtn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      }
+    });
+  });
+
+  // Action buttons
+  el.querySelectorAll('.abtn[data-action]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const uid = parseInt(btn.dataset.uid);
+      if (btn.dataset.action === 'ban') {
+        if (!confirm('Забанить пользователя?')) return;
+        await api('/api/admin/ban', {user_id:uid, banned:1});
+        toast('🔨 Пользователь забанен'); fetchUsers(document.getElementById('usearch')?.value||'');
+      } else if (btn.dataset.action === 'unban') {
+        await api('/api/admin/ban', {user_id:uid, banned:0});
+        toast('✅ Пользователь разбанен'); fetchUsers(document.getElementById('usearch')?.value||'');
+      } else if (btn.dataset.action === 'del') {
+        if (!confirm('Удалить пользователя безвозвратно?')) return;
+        const r = await api('/api/admin/delete_user', {user_id:uid});
+        if (r.error) { alert(r.error); return; }
+        toast('🗑 Пользователь удалён');
+        document.getElementById('uc-'+uid)?.remove();
+      }
+    });
+  });
+
+  // Password reset
+  el.querySelectorAll('.pw-btn[data-action="pw"]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const pw = document.getElementById('pw-'+btn.dataset.uid).value.trim();
+      if (!pw) return;
+      const r = await api('/api/admin/reset_password', {user_id:parseInt(btn.dataset.uid), new_password:pw});
+      if (r.error) { alert(r.error); return; }
+      toast('🔑 Пароль изменён');
+      document.getElementById('pw-'+btn.dataset.uid).value = '';
+    });
+  });
+}
+
+// ── ALL CHATS ──
+async function loadAllChats() {
+  const el = document.getElementById('main-content');
+  el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Загрузка...</div>';
+  const chats = await fetch('/api/admin/all_chats').then(r=>r.json());
+  if (!chats.length) { el.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted)">Нет чатов</div>'; return; }
+  el.innerHTML = chats.map(c => `
+    <div class="chat-card">
+      <div class="chat-card-name">${esc(c.name)} ${c.is_group ? '👥' : '💬'}</div>
+      <div class="chat-card-meta">
+        <span>👤 ${c.member_count} уч.</span>
+        <span>💬 ${c.msg_count} сообщ.</span>
+        <span>📅 ${c.created_at ? c.created_at.slice(0,10) : ''}</span>
+      </div>
+      ${c.last_msg ? `<div style="font-size:13px;color:var(--muted);margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.last_msg)}</div>` : ''}
+    </div>`).join('');
+}
+
+async function api(url, data) {
+  return fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(r=>r.json());
+}
+
+async function init() {
+  const me = await fetch('/api/me').then(r=>r.json());
+  if (!me.logged || (me.role!=='support' && me.role!=='admin')) { window.location.href='/home'; return; }
+  loadStats();
+  setInterval(()=>{ if(currentTab==='stats') loadStats(); }, 15000);
+}
+
+init();
+</script>
+</body>
+</html>

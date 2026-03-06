@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --a:#5b7fff;--a2:#3a5ce0;--bg:#f0f2f8;
+  --card:#fff;--text:#1a1a2e;--muted:#8a8fa8;--danger:#ff4d6d;
+  --h:56px;--nb:64px;
+}
+html,body{height:100%;width:100%;font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text)}
+body{display:flex;flex-direction:column;overflow:hidden}
+
+/* TOPBAR */
+.topbar{
+  flex:0 0 var(--h);background:#fff;border-bottom:1px solid #e8eaf0;
+  display:flex;align-items:center;padding:0 14px;gap:10px;
+  box-shadow:0 1px 8px rgba(0,0,0,0.05);z-index:10;flex-shrink:0;
+}
+.topbar-title{font-size:20px;font-weight:800;flex:1}
+.back-btn{width:38px;height:38px;border-radius:50%;border:none;background:none;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;color:var(--text);flex-shrink:0}
+
+/* NAVBAR */
+.navbar{
+  position:fixed;bottom:0;left:0;right:0;height:var(--nb);
+  background:#fff;border-top:1px solid #e8eaf0;
+  display:flex;align-items:stretch;z-index:100;
+  box-shadow:0 -4px 20px rgba(0,0,0,0.06);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;position:relative;color:var(--muted);transition:.15s;text-decoration:none}
+.nav-item.active{color:var(--a)}
+.nav-icon{font-size:24px;line-height:1}
+.nav-label{font-size:10px;font-weight:700}
+.nav-badge{position:absolute;top:6px;right:18%;background:var(--danger);color:#fff;font-size:10px;font-weight:800;min-width:18px;height:18px;border-radius:9px;display:none;align-items:center;justify-content:center;padding:0 4px}
+
+/* PAGE CONTENT */
+.page{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:var(--nb)}
+
+/* AVATAR */
+.avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;flex-shrink:0}
+
+/* CHAT ITEM */
+.chat-item{display:flex;align-items:center;gap:12px;padding:13px 16px;background:#fff;border-bottom:1px solid #f0f2f8;cursor:pointer;transition:.15s}
+.chat-item:active{background:#f0f2ff}
+.chat-info{flex:1;min-width:0}
+.chat-name{font-weight:700;font-size:15px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-last{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-time{font-size:11px;color:var(--muted)}
+
+/* USER ITEM */
+.user-item{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#fff;border-bottom:1px solid #f0f2f8}
+.user-info{flex:1;min-width:0}
+.user-name{font-weight:700;font-size:15px}
+.user-sub{font-size:12px;color:var(--muted)}
+
+/* BUTTONS */
+.btn-add{padding:7px 15px;border-radius:20px;border:2px solid var(--a);background:none;color:var(--a);font-weight:700;font-size:13px;font-family:inherit;cursor:pointer;white-space:nowrap}
+.btn-add.sent{border-color:var(--muted);color:var(--muted)}
+.btn-add.friend{background:var(--a);color:#fff;border-color:var(--a)}
+.btn-msg{padding:7px 15px;border-radius:20px;border:none;background:var(--a);color:#fff;font-weight:700;font-size:13px;font-family:inherit;cursor:pointer;white-space:nowrap}
+.btn-accept{padding:7px 15px;border-radius:20px;border:none;background:#4cde90;color:#fff;font-weight:700;font-size:13px;font-family:inherit;cursor:pointer}
+
+/* SECTION TITLE */
+.section-title{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;padding:14px 16px 6px}
+
+/* PENDING CARD */
+.pending-card{margin:10px 14px;background:#fff5f7;border:1.5px solid #ffd0da;border-radius:16px;padding:13px 15px;display:flex;align-items:center;gap:12px}
+
+/* EMPTY */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:60px 30px;color:var(--muted)}
+.empty-ico{font-size:52px}
+.empty p{font-size:14px;text-align:center;line-height:1.5}
+
+/* SEARCH BAR */
+.search-wrap{padding:10px 14px;background:#fff;border-bottom:1px solid #f0f2f8;flex-shrink:0}
+.search-inp{width:100%;height:42px;padding:0 16px;border-radius:21px;border:1.5px solid #dde1f0;background:#f6f7fc;font-size:15px;font-family:inherit;outline:none}
+.search-inp:focus{border-color:var(--a)}
